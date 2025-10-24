@@ -27,6 +27,7 @@ A comprehensive Java framework for managing data sources in Amazon Bedrock Knowl
 2. **WebCrawlerDataSourceConnector** - Web crawling
 3. **SharePointDataSourceConnector** - Microsoft SharePoint
 4. **ConfluenceDataSourceConnector** - Atlassian Confluence
+5. **KmsLighthouseConnector** - KMS Lighthouse repository system
 
 ## Usage Examples
 
@@ -77,6 +78,51 @@ WebCrawlerDataSourceConnector webConnector = (WebCrawlerDataSourceConnector)
 DataSourceConfiguration webConfig = webConnector.createWebCrawlerConfiguration(
     "https://docs.example.com",
     3  // crawl depth
+);
+```
+
+### KMS Lighthouse Data Source
+
+```java
+KmsLighthouseConnector kmsConnector = (KmsLighthouseConnector)
+    ConnectorFactory.createConnector(
+        ConnectorFactory.ConnectorType.KMS_LIGHTHOUSE,
+        client,
+        knowledgeBaseId
+    );
+
+// Basic configuration
+DataSourceConfiguration kmsConfig = kmsConnector.createKmsLighthouseConfiguration(
+    "https://lighthouse.company.com",
+    "api-key",
+    Arrays.asList("docs", "procedures", "knowledge")
+);
+
+// Advanced configuration with authentication
+KmsAuthenticationConfig authConfig = KmsAuthenticationConfig.builder()
+    .bearerToken("your-token")
+    .customHeader("X-API-Version", "v2")
+    .build();
+
+KmsLighthouseConfig advancedConfig = KmsLighthouseConfig.builder()
+    .baseUrl("https://lighthouse.company.com")
+    .apiKey("api-key")
+    .addDocumentEndpoint("/api/documents")
+    .addInclusionPattern(".*\\.(pdf|docx|md)$")
+    .rateLimit(50)
+    .authenticationConfig(authConfig)
+    .build();
+
+// Start ingestion with options
+KmsIngestionOptions options = KmsIngestionOptions.builder()
+    .enableMonitoring(true)
+    .batchSize(100)
+    .extractMetadata(true)
+    .build();
+
+StartIngestionJobResponse response = kmsConnector.startKmsLighthouseIngestion(
+    dataSourceId, 
+    options
 );
 ```
 

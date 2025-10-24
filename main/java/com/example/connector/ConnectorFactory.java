@@ -11,7 +11,8 @@ public class ConnectorFactory {
         S3,
         WEB_CRAWLER,
         SHAREPOINT,
-        CONFLUENCE
+        CONFLUENCE,
+        KMS_LIGHTHOUSE
     }
     
     /**
@@ -39,6 +40,8 @@ public class ConnectorFactory {
                 return new SharePointDataSourceConnector(client, knowledgeBaseId, config);
             case CONFLUENCE:
                 return new ConfluenceDataSourceConnector(client, knowledgeBaseId, config);
+            case KMS_LIGHTHOUSE:
+                return new KmsLighthouseConnector(client, knowledgeBaseId, config);
             default:
                 throw new IllegalArgumentException("Unsupported connector type: " + type);
         }

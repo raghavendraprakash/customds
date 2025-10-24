@@ -24,6 +24,9 @@ public class Main {
             // Example 3: Web Crawler Data Source
             demonstrateWebCrawlerDataSource(client, "kb-example-123");
             
+            // Example 4: KMS Lighthouse Data Source
+            demonstrateKmsLighthouseDataSource(client, "kb-example-123");
+            
         } catch (ConnectorException e) {
             System.err.println("Connector Error: " + e.getMessage());
             e.printStackTrace();
@@ -127,5 +130,48 @@ public class Main {
         // List all data sources
         ListDataSourcesResponse listResponse = webConnector.listDataSources();
         System.out.println("Total data sources in KB: " + listResponse.dataSources().size());
+    }
+    
+    private static void demonstrateKmsLighthouseDataSource(BedrockAgentClient client, String knowledgeBaseId) 
+            throws ConnectorException {
+        System.out.println("\n=== KMS Lighthouse Data Source Demo ===");
+        
+        KmsLighthouseConnector kmsConnector = (KmsLighthouseConnector) 
+            ConnectorFactory.createConnector(
+                ConnectorFactory.ConnectorType.KMS_LIGHTHOUSE, 
+                client, 
+                knowledgeBaseId
+            );
+        
+        // Create KMS Lighthouse configuration
+        DataSourceConfiguration kmsConfig = kmsConnector.createKmsLighthouseConfiguration(
+            "https://lighthouse.example.com",
+            "api-key-123",
+            Arrays.asList("documentation", "procedures", "knowledge")
+        );
+        
+        // Create data source
+        CreateDataSourceResponse createResponse = kmsConnector.createDataSource(
+            "KMS Lighthouse Repository", 
+            kmsConfig
+        );
+        
+        String dataSourceId = createResponse.dataSource().dataSourceId();
+        System.out.println("Created KMS Lighthouse data source: " + dataSourceId);
+        
+        // Start ingestion with monitoring
+        KmsIngestionOptions options = KmsIngestionOptions.builder()
+            .enableMonitoring(true)
+            .batchSize(50)
+            .extractMetadata(true)
+            .build();
+            
+        StartIngestionJobResponse ingestionResponse = kmsConnector.startKmsLighthouseIngestion(
+            dataSourceId, 
+            options
+        );
+        
+        System.out.println("Started KMS Lighthouse ingestion: " + 
+                         ingestionResponse.ingestionJob().ingestionJobId());
     }
 }
